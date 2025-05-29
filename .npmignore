@@ -1,0 +1,34 @@
+# Source files
+src/
+*.ts
+!dist/**/*.d.ts
+
+# Test files
+*.test.*
+*.spec.*
+example.ts
+
+# Config files
+tsconfig.json
+biome.json
+bun.lockb
+
+# Development files
+.gitignore
+.npmignore
+
+# CI/CD
+.github/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Coverage
+coverage/
