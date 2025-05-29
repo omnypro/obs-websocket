@@ -1,6 +1,6 @@
 {
   "name": "@omnypro/obs-websocket",
-  "version": "0.1.0",
+  "version": "5.6.0",
   "description": "Modern OBS WebSocket client for Bun runtime",
   "type": "module",
   "main": "./dist/index.js",
@@ -25,7 +25,14 @@
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["obs", "websocket", "obs-websocket", "streaming", "bun", "typescript"],
+  "keywords": [
+    "obs",
+    "websocket",
+    "obs-websocket",
+    "streaming",
+    "bun",
+    "typescript"
+  ],
   "author": "Omnypro",
   "license": "MIT",
   "devDependencies": {
