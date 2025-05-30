@@ -320,19 +320,23 @@ export class OBSWebSocket extends EventEmitter {
 
     this.pendingRequests.delete(requestId)
 
-    const responses = results.map((result: any) => {
-      if (result.requestStatus.result) {
-        return result.responseData
-      } else {
-        throw new OBSRequestError(
-          result.requestStatus.code,
-          result.requestStatus.comment || 'Unknown error',
-          result.requestType
-        )
-      }
-    })
+    try {
+      const responses = results.map((result: any) => {
+        if (result.requestStatus.result) {
+          return result.responseData
+        } else {
+          throw new OBSRequestError(
+            result.requestStatus.code,
+            result.requestStatus.comment || 'Unknown error',
+            result.requestType
+          )
+        }
+      })
 
-    pending.resolve(responses)
+      pending.resolve(responses)
+    } catch (error) {
+      pending.reject(error as Error)
+    }
   }
 
   private handleClose(event: CloseEvent): void {
