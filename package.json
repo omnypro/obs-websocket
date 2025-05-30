@@ -1,6 +1,6 @@
 {
   "name": "@omnypro/obs-websocket",
-  "version": "5.6.0",
+  "version": "5.6.1",
   "description": "Modern OBS WebSocket client for Bun runtime",
   "type": "module",
   "main": "./dist/index.js",
