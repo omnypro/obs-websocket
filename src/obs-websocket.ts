@@ -229,8 +229,9 @@ export class OBSWebSocket extends EventEmitter {
     }
 
     return new Promise((resolve, reject) => {
-      this.once('obs:Identified', () => {
+      this.once('obs:Identified', (identified) => {
         this.isIdentified = true
+        this.emit('Identified', identified.d)
         this.emit('ConnectionOpened')
         resolve()
       })
@@ -255,7 +256,6 @@ export class OBSWebSocket extends EventEmitter {
 
         case OpCode.Identified:
           this.rpcVersion = message.d.negotiatedRpcVersion
-          this.emit('Identified', message.d)
           this.emit('obs:Identified', message)
           break
 

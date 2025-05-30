@@ -145,10 +145,13 @@ describe('OBS WebSocket Protocol v5.x Compliance', () => {
     test('handles Identified message correctly', async () => {
       const connectPromise = obs.connect('ws://localhost:4455')
       
-      // Track the Identified event emission
+      // Track the Identified event emission and connection state
       let identifiedEventData: any = null
+      let connectedStateAtEvent = false
+      
       obs.on('Identified', (data) => {
         identifiedEventData = data
+        connectedStateAtEvent = obs.connected
       })
       
       // Get message handler for simulating server messages
@@ -187,6 +190,9 @@ describe('OBS WebSocket Protocol v5.x Compliance', () => {
       expect(identifiedEventData).toEqual({
         negotiatedRpcVersion: 1,
       })
+      
+      // Verify obs.connected was true when Identified event fired
+      expect(connectedStateAtEvent).toBe(true)
     })
 
     test('handles custom event subscriptions', async () => {
