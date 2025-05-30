@@ -86,9 +86,6 @@ export class OBSWebSocket extends EventEmitter {
       const onOpen = () => {
         this.log('debug', 'WebSocket connected')
         this.isConnected = true
-        this.ws!.addEventListener('message', this.handleMessage.bind(this))
-        this.ws!.addEventListener('close', this.handleClose.bind(this))
-        this.ws!.addEventListener('error', this.handleError.bind(this))
         cleanup()
       }
 
@@ -103,30 +100,19 @@ export class OBSWebSocket extends EventEmitter {
         reject(new Error('Connection closed before establishing'))
       }
 
-      // Store password for authentication
-      if (password) {
-        this.once('obs:Hello', async (hello: HelloMessage) => {
-          try {
-            await this.identify(hello, password)
-            resolve()
-          } catch (error) {
-            reject(error)
-          }
-        })
-      } else {
-        this.once('obs:Hello', async (hello: HelloMessage) => {
-          try {
-            await this.identify(hello)
-            resolve()
-          } catch (error) {
-            reject(error)
-          }
-        })
-      }
+      this.once('obs:Hello', async (hello: HelloMessage) => {
+        try {
+          await this.identify(hello, password)
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
 
+      this.ws.addEventListener('message', this.handleMessage.bind(this))
       this.ws.addEventListener('open', onOpen)
-      this.ws.addEventListener('error', onError)
-      this.ws.addEventListener('close', onClose)
+      this.ws.addEventListener('close', this.handleClose.bind(this))
+      this.ws.addEventListener('error', this.handleError.bind(this))
     })
   }
 

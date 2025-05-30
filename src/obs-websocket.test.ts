@@ -37,40 +37,72 @@ describe('OBSWebSocket', () => {
     test('connects without subprotocol', async () => {
       const connectPromise = obs.connect('ws://localhost:4455')
 
-      // Simulate Hello message
-      setTimeout(() => {
-        const messageHandler = mockWebSocket.addEventListener.mock.calls.find(
-          ([event]: any) => event === 'message'
-        )?.[1]
+      // Get the message handler that was registered
+      const messageHandler = mockWebSocket.addEventListener.mock.calls.find(
+        ([event]: any) => event === 'message'
+      )?.[1]
 
-        if (messageHandler) {
-          messageHandler({
-            data: JSON.stringify({
-              op: OpCode.Hello,
-              d: {
-                obsWebSocketVersion: '5.0.0',
-                rpcVersion: 1,
-              },
-            }),
-          })
+      expect(messageHandler).toBeDefined()
 
-          // Simulate Identified message
-          setTimeout(() => {
-            messageHandler({
-              data: JSON.stringify({
-                op: OpCode.Identified,
-                d: {
-                  negotiatedRpcVersion: 1,
-                },
-              }),
-            })
-          }, 0)
-        }
-      }, 10)
+      // Simulate OBS sending Hello immediately after connection
+      messageHandler({
+        data: JSON.stringify({
+          op: OpCode.Hello,
+          d: {
+            obsWebSocketVersion: '5.0.0',
+            rpcVersion: 1,
+          },
+        }),
+      })
+
+      // Wait for identify to be sent
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      // Check that Identify was sent
+      const identifyCall = mockWebSocket.send.mock.calls.find((call: any) => {
+        const msg = JSON.parse(call[0])
+        return msg.op === OpCode.Identify
+      })
+      expect(identifyCall).toBeDefined()
+
+      // Simulate Identified response
+      messageHandler({
+        data: JSON.stringify({
+          op: OpCode.Identified,
+          d: {
+            negotiatedRpcVersion: 1,
+          },
+        }),
+      })
 
       await connectPromise
       expect(obs.connected).toBe(true)
       expect(mockWebSocket.url).toBe('ws://localhost:4455')
+    })
+
+    test('registers message handler before connection opens', () => {
+      obs.connect('ws://localhost:4455')
+
+      // Verify message listener was added immediately
+      const messageListenerCall = mockWebSocket.addEventListener.mock.calls.find(
+        ([event]: any) => event === 'message'
+      )
+      expect(messageListenerCall).toBeDefined()
+
+      // Verify open listener was also added
+      const openListenerCall = mockWebSocket.addEventListener.mock.calls.find(
+        ([event]: any) => event === 'open'
+      )
+      expect(openListenerCall).toBeDefined()
+
+      // Message listener should be registered before open listener
+      const messageIndex = mockWebSocket.addEventListener.mock.calls.findIndex(
+        ([event]: any) => event === 'message'
+      )
+      const openIndex = mockWebSocket.addEventListener.mock.calls.findIndex(
+        ([event]: any) => event === 'open'
+      )
+      expect(messageIndex).toBeLessThan(openIndex)
     })
 
     test('handles authentication', async () => {
