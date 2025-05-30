@@ -10,11 +10,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "allowImportingTsExtensions": false,
-    "noEmit": false,
+    "noEmit": true,
     "types": ["bun-types"]
   },
   "include": ["src/**/*"],
