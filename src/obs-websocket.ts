@@ -255,6 +255,7 @@ export class OBSWebSocket extends EventEmitter {
 
         case OpCode.Identified:
           this.rpcVersion = message.d.negotiatedRpcVersion
+          this.emit('Identified', message.d)
           this.emit('obs:Identified', message)
           break
 

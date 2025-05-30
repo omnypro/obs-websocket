@@ -145,6 +145,12 @@ describe('OBS WebSocket Protocol v5.x Compliance', () => {
     test('handles Identified message correctly', async () => {
       const connectPromise = obs.connect('ws://localhost:4455')
       
+      // Track the Identified event emission
+      let identifiedEventData: any = null
+      obs.on('Identified', (data) => {
+        identifiedEventData = data
+      })
+      
       // Get message handler for simulating server messages
       const messageHandler = mockWebSocket.addEventListener.mock.calls.find(
         ([event]: any) => event === 'message'
@@ -176,6 +182,11 @@ describe('OBS WebSocket Protocol v5.x Compliance', () => {
 
       await connectPromise
       expect(obs.connected).toBe(true)
+      
+      // Verify the public Identified event was emitted
+      expect(identifiedEventData).toEqual({
+        negotiatedRpcVersion: 1,
+      })
     })
 
     test('handles custom event subscriptions', async () => {
